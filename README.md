@@ -2,9 +2,12 @@
 GUI created using C# with WPF to toggle shader compilation in the S.T.A.L.K.E.R 2 - Heart of Chornobyl video game
 
 
-Application will detect if you installed the game with Steam or with Xbox game pass and write a Engine.ini file to the `%LOCALAPPDATA%\Stalker2\Saved\Config\Windows` directory with the text 
-[SystemSettings]
-r.PSOWarmup.WarmupMaterials=0
+Application will detect if you installed the game with Steam or with Xbox game pass and write
+`[SystemSettings]
+r.PSOWarmup.WarmupMaterials=0`
+to a file to the `%LOCALAPPDATA%\Stalker2\Saved\Config\Windows` directory with the filename `Engine.ini`.
+
+
 
 this will disable the shader compilation when you start the game. 
 changing the 0 to a 1 or deleting the Engine.ini file will re-enable the shader compilation. 
