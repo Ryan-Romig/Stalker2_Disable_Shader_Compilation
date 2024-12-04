@@ -3,3 +3,5 @@
 ################################################################################
 
 /.vs
+/STALKER2_Disable_Shader_Compilation/obj
+/STALKER2_Disable_Shader_Compilation/bin/Debug/net8.0-windows
