@@ -4,8 +4,8 @@ GUI created using C# with WPF to toggle shader compilation in the S.T.A.L.K.E.R 
 
 Application will detect if you installed the game with Steam or with Xbox game pass and write
 
-`[SystemSettings]
-r.PSOWarmup.WarmupMaterials=0`
+`[SystemSettings]`<br>
+`r.PSOWarmup.WarmupMaterials=0`
 
 to a file to the `%LOCALAPPDATA%\Stalker2\Saved\Config\Windows` directory with the filename `Engine.ini`.
 
