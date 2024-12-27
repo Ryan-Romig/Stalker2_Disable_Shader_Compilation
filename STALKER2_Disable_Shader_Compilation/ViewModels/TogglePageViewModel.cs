@@ -51,29 +51,44 @@ namespace STALKER2_Disable_Shader_Compilation.ViewModels
 
         string directoryPath = string.Empty;
 
-        private bool _isButtonChecked;
+        private bool _isRayTracingButtonChecked;
+        private bool _isShaderCompButtonChecked;
         private bool _installationFound;
         private string _isVisible = "Hidden";
-        private string _buttonText = "Re-Enable";
+        private string _shaderCompButtonText = "Re-Enable";
+        private string _rayTracingButtonText = "Re-Enable";
 
-        public ICommand ToggleCommand { get; }
+
+
+        public ICommand ToggleShaderCompCommand { get; }
+        public ICommand ToggleRayTracingCommand { get; }
 
         private string _shaderCompilationMessage = "";
+        private string _rayTracingMessage = "";
 
 
 
         public TogglePageViewModel()
         {
 
-            ToggleCommand = new RelayCommand(Toggle);
+            ToggleShaderCompCommand = new RelayCommand(ToggleShaderComp);
+            ToggleRayTracingCommand = new RelayCommand(ToggleRayTracing);
             //check what the value is in the file and set checked value accordingly
             getPlatform();
             if (PlatformString != NOT_FOUND)
             {
-                int currentValue = getCurrentValue();
-                IsButtonChecked = currentValue == DISABLED;
-                ButtonText = IsButtonChecked ? "Re-Enable" : "Disable";
-                ShaderCompilationMessage = IsButtonChecked ? "Disabled" : "Enabled";
+                int currentShaderCompValue = getCurrentShaderCompValue();
+                int currentRayTracingValue = getCurrentRayTracingValue();
+
+                IsShaderCompButtonChecked = currentShaderCompValue == DISABLED;
+                IsRayTracingButtonChecked = currentRayTracingValue == DISABLED;
+
+                ShaderCompButtonText = IsShaderCompButtonChecked ? "Re-Enable" : "Disable";
+                RayTracingButtonText = IsRayTracingButtonChecked ? "Re-Enable" : "Disable";
+
+                ShaderCompilationMessage = IsShaderCompButtonChecked ? "Disabled" : "Enabled";
+                RayTracingMessage = IsRayTracingButtonChecked ? "Disabled" : "Enabled";
+
                 IsVisible = "Visible";
             }
             IsVisible = (PlatformString == NOT_FOUND) ? "Hidden" : "Visible";
@@ -103,12 +118,21 @@ namespace STALKER2_Disable_Shader_Compilation.ViewModels
             }
         }
 
-        public string ButtonText
+        public string ShaderCompButtonText
         {
-            get => _buttonText;
+            get => _shaderCompButtonText;
             set
             {
-                _buttonText = value;
+                _shaderCompButtonText = value;
+                OnPropertyChanged();
+            }
+        }
+        public string RayTracingButtonText
+        {
+            get => _rayTracingButtonText;
+            set
+            {
+                _rayTracingButtonText = value;
                 OnPropertyChanged();
             }
         }
@@ -121,6 +145,15 @@ namespace STALKER2_Disable_Shader_Compilation.ViewModels
                 OnPropertyChanged();
             }
         }
+        public string RayTracingMessage
+        {
+            get => _rayTracingMessage;
+            set
+            {
+                _rayTracingMessage = value;
+                OnPropertyChanged();
+            }
+        }
         public string IsVisible
         {
             get => _isVisible;
@@ -130,12 +163,21 @@ namespace STALKER2_Disable_Shader_Compilation.ViewModels
                 OnPropertyChanged();
             }
         }
-        public bool IsButtonChecked
+        public bool IsShaderCompButtonChecked
         {
-            get => _isButtonChecked;
+            get => _isShaderCompButtonChecked;
             set
             {
-                _isButtonChecked = value;
+                _isShaderCompButtonChecked = value;
+                OnPropertyChanged();
+            }
+        }
+        public bool IsRayTracingButtonChecked
+        {
+            get => _isRayTracingButtonChecked;
+            set
+            {
+                _isRayTracingButtonChecked = value;
                 OnPropertyChanged();
             }
         }
@@ -158,18 +200,23 @@ namespace STALKER2_Disable_Shader_Compilation.ViewModels
             }
         }
 
-        private void Toggle()
+        private void ToggleShaderComp()
         {
-            setShaderCompValue(IsButtonChecked ? DISABLED : ENABLED);
-            ButtonText = IsButtonChecked ? "Re-Enable" : "Disable";
-            ShaderCompilationMessage = IsButtonChecked ? "Disabled" : "Enabled";
+            setShaderCompValue(IsShaderCompButtonChecked ? DISABLED : ENABLED);
+            ShaderCompButtonText = IsShaderCompButtonChecked ? "Re-Enable" : "Disable";
+            ShaderCompilationMessage = IsShaderCompButtonChecked ? "Disabled" : "Enabled";
 
-
+        }
+        private void ToggleRayTracing()
+        {
+            setRayTracingValue(IsRayTracingButtonChecked ? DISABLED : ENABLED);
+            RayTracingButtonText = IsRayTracingButtonChecked ? "Re-Enable" : "Disable";
+            RayTracingMessage = IsRayTracingButtonChecked ? "Disabled" : "Enabled";
 
         }
 
 
-        private int getCurrentValue()
+        private int getCurrentShaderCompValue()
         {
             string filePath = Path.Combine(directoryPath, _fileName);
             if (File.Exists(filePath))
@@ -189,19 +236,46 @@ namespace STALKER2_Disable_Shader_Compilation.ViewModels
             }
             return -1; // Return a default value or handle the case where the line is not found
         }
+        private int getCurrentRayTracingValue()
+        {
+            string filePath = Path.Combine(directoryPath, _fileName);
+            if (File.Exists(filePath))
+            {
+                var lines = File.ReadLines(filePath);
+                foreach (var line in lines)
+                {
+                    if (line.Contains("r.RayTracing.ForceAllRayTracingEffects"))
+                    {
+                        var parts = line.Split('=');
+                        if (parts.Length == 2 && int.TryParse(parts[1], out int value))
+                        {
+                            return value;
+                        }
+                    }
+                }
+            }
+            return -1; // Return a default value or handle the case where the line is not found
+        }
         private void setShaderCompValue(int value)
         {
             string filePath = Path.Combine(directoryPath, _fileName);
             if (File.Exists(filePath))
             {
                 var lines = File.ReadAllLines(filePath);
+                var found = false;
                 for (int i = 0; i < lines.Length; i++)
                 {
                     if (lines[i].Contains("r.PSOWarmup.WarmupMaterials"))
                     {
                         lines[i] = $"r.PSOWarmup.WarmupMaterials={value}";
+                        found = true;
                         break;
                     }
+                }
+                if(!found)
+                {
+                   lines = lines.Append("[SystemSettings]").ToArray();
+                   lines = lines.Append($"r.PSOWarmup.WarmupMaterials={value}").ToArray();
                 }
                 File.WriteAllLines(filePath, lines);
             }
@@ -212,6 +286,41 @@ namespace STALKER2_Disable_Shader_Compilation.ViewModels
                 {
                     sw.WriteLine("[SystemSettings]");
                     sw.WriteLine($"r.PSOWarmup.WarmupMaterials={value}");
+                    sw.Close();
+                }
+            }
+        }
+        private void setRayTracingValue(int value)
+        {
+            string filePath = Path.Combine(directoryPath, _fileName);
+            if (File.Exists(filePath))
+            {
+                var lines = File.ReadAllLines(filePath);
+                var found = false;
+                for (int i = 0; i < lines.Length; i++)
+                {
+                    if (lines[i].Contains("r.RayTracing.ForceAllRayTracingEffects"))
+                    {
+                        lines[i] = $"r.RayTracing.ForceAllRayTracingEffects={value}";
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found)
+                {
+                    lines = lines.Append("[System]").ToArray();
+                    lines = lines.Append($"r.RayTracing.ForceAllRayTracingEffects={value}").ToArray();
+
+                }
+                File.WriteAllLines(filePath, lines);
+            }
+            else
+            {
+                // Create the file and write the default content
+                using (StreamWriter sw = File.CreateText(filePath))
+                {
+                    sw.WriteLine("[System]");
+                    sw.WriteLine($"r.RayTracing.ForceAllRayTracingEffects={value}");
                     sw.Close();
                 }
             }

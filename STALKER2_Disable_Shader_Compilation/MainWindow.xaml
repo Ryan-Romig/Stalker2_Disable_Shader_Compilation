@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:STALKER2_Disable_Shader_Compilation" 
         mc:Ignorable="d"
-        Title="Stalker 2 Disable Shader Compilation" Height="290" Width="463">
+        Title="Stalker 2 Disable Shader Compilation" Height="341" Width="478">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="40"/>
@@ -25,7 +25,12 @@
             <StackPanel>
                 <Label  x:Name="ShaderMessageHeader" HorizontalAlignment="Center" VerticalAlignment="Top">Shader Compilation On Boot is</Label>
                 <Label FontSize="24" HorizontalAlignment="Center" Content="{Binding ShaderCompilationMessage}"/>
-                <ToggleButton HorizontalAlignment="Center" Width="70" Height="40" FontSize="12" Content="{Binding ButtonText}" IsEnabled="{Binding InstallationFound}" Grid.Row="2" IsChecked="{Binding IsButtonChecked}" Command="{Binding ToggleCommand}"/>
+                <ToggleButton HorizontalAlignment="Center" Width="70" Height="40" FontSize="12" Content="{Binding ShaderCompButtonText}" IsEnabled="{Binding InstallationFound}" Grid.Row="2" IsChecked="{Binding IsShaderCompButtonChecked}" Command="{Binding ToggleShaderCompCommand}"/>
+
+                <Label  x:Name="RayTracingMessageHeader" HorizontalAlignment="Center" VerticalAlignment="Top">Ray Tracing is</Label>
+                <Label FontSize="24" HorizontalAlignment="Center" Content="{Binding RayTracingMessage}"/>
+                <ToggleButton HorizontalAlignment="Center" Width="70" Height="40" FontSize="12" Content="{Binding RayTracingButtonText}" IsEnabled="{Binding InstallationFound}" Grid.Row="2" IsChecked="{Binding IsRayTracingButtonChecked}" Command="{Binding ToggleRayTracingCommand}"/>
+
             </StackPanel>
         </Grid>
     </Grid>
